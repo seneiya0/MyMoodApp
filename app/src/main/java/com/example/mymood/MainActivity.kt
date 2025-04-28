@@ -2,6 +2,7 @@ package com.example.mymood
 
 import android.os.Bundle
 import android.text.Layout
+import androidx.compose.ui.Alignment
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -28,6 +29,7 @@ import kotlinx.coroutines.flow.collect
 import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -53,7 +55,9 @@ class MainActivity : ComponentActivity() {
                         applicationContext,
                         MoodDatabase::class.java,
                         "mood_database"
-                    ).build()
+                    )
+                        .fallbackToDestructiveMigration(false)
+                        .build()
                 }
 
                 val repository = remember { MoodRepository(database.moodDao()) }
@@ -86,12 +90,18 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MoodTrackerScreen(viewModel: MoodViewModel, navController: NavController) {
     var selectedMood by remember { mutableStateOf("😊") }
     var notes by remember { mutableStateOf(TextFieldValue("")) }
     var showHistory by remember { mutableStateOf(false) }
-    val moodList by viewModel.moodEntries.collectAsState()
+    var expanded by remember { mutableStateOf(false) }
+    val sleepOptions = listOf("1 hour","2 hours","3 hours","4 hours", "5 hours", "6 hours", "7 hours", "8 hours", "9 hours", "10 hours", "11 hours", "12 hours", "Over 12 Hours")
+    var selectedSleep by remember { mutableStateOf(sleepOptions[2]) }
+    var stressLevel by remember { mutableStateOf(5f) }
+
+    val moodList by viewModel.moodEntries.collectAsState(initial = emptyList())
 
     Column(
         modifier = Modifier
@@ -99,7 +109,8 @@ fun MoodTrackerScreen(viewModel: MoodViewModel, navController: NavController) {
             .fillMaxSize()
             .padding(WindowInsets.systemBars.asPaddingValues())
             .padding(16.dp),
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
             text = "How are you feeling today?",
@@ -130,6 +141,55 @@ fun MoodTrackerScreen(viewModel: MoodViewModel, navController: NavController) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = !expanded }
+        ) {
+            TextField(
+                value = selectedSleep,
+                onValueChange = {},
+                readOnly = true,
+                label = { Text("Sleep Hours") },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
+                colors = ExposedDropdownMenuDefaults.textFieldColors(),
+                modifier = Modifier.menuAnchor()
+            )
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                sleepOptions.forEach { selectionOption ->
+                    DropdownMenuItem(
+                        text = { Text(selectionOption) },
+                        onClick = {
+                            selectedSleep = selectionOption
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Column {
+            Text(
+                text = "Stress Level: ${stressLevel.toInt()}",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onBackground,
+            )
+            Slider(
+                value = stressLevel,
+                onValueChange = { stressLevel = it },
+                valueRange = 0f..10f,
+                steps = 9,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Notes Box (already had)
         BasicTextField(
             value = notes,
             onValueChange = { notes = it },
@@ -137,8 +197,7 @@ fun MoodTrackerScreen(viewModel: MoodViewModel, navController: NavController) {
             modifier = Modifier
                 .fillMaxWidth()
                 .height(100.dp)
-                .padding(8.dp)
-            ,
+                .padding(8.dp),
             decorationBox = { innerTextField ->
                 Box(
                     modifier = Modifier
@@ -160,23 +219,22 @@ fun MoodTrackerScreen(viewModel: MoodViewModel, navController: NavController) {
             }
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.padding(8.dp))
 
         Button(
             onClick = {
-                viewModel.addMood(selectedMood, notes.text)
+                viewModel.addMood(selectedMood, notes.text, selectedSleep, stressLevel.toInt())
                 notes = TextFieldValue("")
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().height(72.dp).padding(start = 24.dp, end = 24.dp),
+
         ) {
             Text("Save Mood")
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
-
         Button(
             onClick = { showHistory = true },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().padding(20.dp)
         ) {
             Text("View Mood History")
         }
@@ -227,8 +285,20 @@ fun MoodTrackerScreenPreview() {
                 override fun getAllMoods(): kotlinx.coroutines.flow.Flow<List<MoodEntry>> =
                     kotlinx.coroutines.flow.flowOf(
                         listOf(
-                            MoodEntry(mood = "😊", notes = "Feeling good!", timestamp = System.currentTimeMillis()),
-                            MoodEntry(mood = "😐", notes = "Okay day.", timestamp = System.currentTimeMillis())
+                            MoodEntry(
+                                mood = "😊",
+                                notes = "Feeling good!",
+                                sleepHours = "8",
+                                stressLevel = 2,
+                                timestamp = System.currentTimeMillis()
+                            ),
+                            MoodEntry(
+                                mood = "😐",
+                                notes = "Okay day.",
+                                sleepHours = "6",
+                                stressLevel = 5,
+                                timestamp = System.currentTimeMillis()
+                            )
                         )
                     )
             }
@@ -237,8 +307,8 @@ fun MoodTrackerScreenPreview() {
 
     MyMoodTheme {
         MoodTrackerScreen(
-            navController = navController,
-            viewModel = fakeViewModel
+            viewModel = fakeViewModel,
+            navController = navController
         )
     }
 }

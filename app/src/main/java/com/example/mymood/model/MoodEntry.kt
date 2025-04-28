@@ -7,6 +7,8 @@ import androidx.room.PrimaryKey
 data class MoodEntry(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val mood: String,
-    val notes: String?, // optional user notes
+    val notes: String?,
+    val sleepHours: String,
+    val stressLevel: Int,
     val timestamp: Long
 )

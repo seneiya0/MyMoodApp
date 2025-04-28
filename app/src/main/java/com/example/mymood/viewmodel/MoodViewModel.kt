@@ -4,30 +4,26 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mymood.data.MoodRepository
 import com.example.mymood.model.MoodEntry
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 open class MoodViewModel(private val repository: MoodRepository) : ViewModel() {
 
-    val moodEntries: StateFlow<List<MoodEntry>> = repository.allMoods
-        .map { moods -> moods.sortedByDescending { it.timestamp } }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
+    val moodEntries: Flow<List<MoodEntry>> = repository.getAllMoods()
 
-    fun addMood(mood: String, notes: String?) {
-        val newMood = MoodEntry(
-            mood = mood,
-            notes = notes,
-            timestamp = System.currentTimeMillis()
-        )
+    fun addMood(mood: String, notes: String?, sleepHours: String, stressLevel: Int) {
         viewModelScope.launch {
-            repository.insertMood(newMood)
+            val moodEntry = MoodEntry(
+                mood = mood,
+                notes = notes,
+                sleepHours = sleepHours,
+                stressLevel = stressLevel,
+                timestamp = System.currentTimeMillis()
+            )
+            repository.insertMood(moodEntry)
         }
     }
 }
