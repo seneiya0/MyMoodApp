@@ -1,6 +1,7 @@
 package com.example.mymood
 
 import android.os.Bundle
+import android.text.Layout
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -25,37 +26,68 @@ import com.example.mymood.viewmodel.MoodViewModel
 import com.example.mymood.viewmodel.MoodViewModelFactory
 import kotlinx.coroutines.flow.collect
 import androidx.compose.foundation.lazy.items
+import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.text.style.TextAlign
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.room.Room
+import com.example.mymood.data.MoodDatabase
+import com.example.mymood.ui.HelpScreen
+import com.example.mymood.ui.PreferencesScreen
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import com.example.mymood.ui.navigation.BottomNavigationBar
 
 class MainActivity : ComponentActivity() {
-    private val database by lazy {
-        androidx.room.Room.databaseBuilder(
-            applicationContext,
-            com.example.mymood.data.MoodDatabase::class.java,
-            "mood_database"
-        ).build()
-    }
-
-    private val moodViewModel: MoodViewModel by viewModels {
-        MoodViewModelFactory(
-            MoodRepository(database.moodDao())
-        )
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             MyMoodTheme {
-                MoodTrackerScreen(moodViewModel)
+                val navController = rememberNavController()
+                val database = remember {
+                    Room.databaseBuilder(
+                        applicationContext,
+                        MoodDatabase::class.java,
+                        "mood_database"
+                    ).build()
+                }
+
+                val repository = remember { MoodRepository(database.moodDao()) }
+
+                val moodViewModel: MoodViewModel = viewModel(
+                    factory = MoodViewModelFactory(repository)
+                )
+
+                Scaffold(
+                    bottomBar = { BottomNavigationBar(navController = navController) }
+                ) { innerPadding ->
+                    NavHost(
+                        navController = navController,
+                        startDestination = "moodTracker",
+                        modifier = Modifier.padding(innerPadding)
+                    ) {
+                        composable(route = "moodTracker") {
+                            MoodTrackerScreen(navController = navController, viewModel = moodViewModel)
+                        }
+                        composable(route = "preferences") {
+                            PreferencesScreen(navController = navController)
+                        }
+                        composable(route = "help") {
+                            HelpScreen(navController = navController)
+                        }
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-fun MoodTrackerScreen(viewModel: MoodViewModel) {
+fun MoodTrackerScreen(viewModel: MoodViewModel, navController: NavController) {
     var selectedMood by remember { mutableStateOf("😊") }
     var notes by remember { mutableStateOf(TextFieldValue("")) }
     var showHistory by remember { mutableStateOf(false) }
@@ -66,12 +98,13 @@ fun MoodTrackerScreen(viewModel: MoodViewModel) {
             .background(color = MaterialTheme.colorScheme.background)
             .fillMaxSize()
             .padding(WindowInsets.systemBars.asPaddingValues())
-            .padding(16.dp)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center
     ) {
         Text(
             text = "How are you feeling today?",
             style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onBackground
+            color = MaterialTheme.colorScheme.onBackground,
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -185,20 +218,27 @@ fun formatTimestamp(timestamp: Long): String {
 @Preview(showBackground = true)
 @Composable
 fun MoodTrackerScreenPreview() {
+    val navController = rememberNavController()
+
     val fakeViewModel = object : MoodViewModel(
         MoodRepository(
             object : MoodDao {
                 override suspend fun insertMood(moodEntry: MoodEntry) {}
-                override fun getAllMoods() = kotlinx.coroutines.flow.flowOf(
-                    listOf(
-                        MoodEntry(mood = "😊", notes = "Feeling good!", timestamp = System.currentTimeMillis()),
-                        MoodEntry(mood = "😐", notes = "Okay day.", timestamp = System.currentTimeMillis())
+                override fun getAllMoods(): kotlinx.coroutines.flow.Flow<List<MoodEntry>> =
+                    kotlinx.coroutines.flow.flowOf(
+                        listOf(
+                            MoodEntry(mood = "😊", notes = "Feeling good!", timestamp = System.currentTimeMillis()),
+                            MoodEntry(mood = "😐", notes = "Okay day.", timestamp = System.currentTimeMillis())
+                        )
                     )
-                )
             }
         )
     ) {}
+
     MyMoodTheme {
-        MoodTrackerScreen(viewModel = fakeViewModel)
+        MoodTrackerScreen(
+            navController = navController,
+            viewModel = fakeViewModel
+        )
     }
 }
