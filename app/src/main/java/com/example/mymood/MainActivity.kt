@@ -43,6 +43,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import com.example.mymood.ui.navigation.BottomNavigationBar
+import com.example.mymood.viewmodel.PreferencesViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,6 +66,8 @@ class MainActivity : ComponentActivity() {
                 val moodViewModel: MoodViewModel = viewModel(
                     factory = MoodViewModelFactory(repository)
                 )
+                val preferencesViewModel: PreferencesViewModel = viewModel()
+                val snackbarHostState = remember { SnackbarHostState() }
 
                 Scaffold(
                     bottomBar = { BottomNavigationBar(navController = navController) }
@@ -78,7 +81,7 @@ class MainActivity : ComponentActivity() {
                             MoodTrackerScreen(navController = navController, viewModel = moodViewModel)
                         }
                         composable(route = "preferences") {
-                            PreferencesScreen(navController = navController)
+                            PreferencesScreen(navController = navController, viewModel = preferencesViewModel, snackbarHostState = snackbarHostState)
                         }
                         composable(route = "help") {
                             HelpScreen(navController = navController)
@@ -143,7 +146,7 @@ fun MoodTrackerScreen(viewModel: MoodViewModel, navController: NavController) {
 
         ExposedDropdownMenuBox(
             expanded = expanded,
-            onExpandedChange = { expanded = !expanded }
+            onExpandedChange = { expanded = !expanded },
         ) {
             TextField(
                 value = selectedSleep,
@@ -151,7 +154,7 @@ fun MoodTrackerScreen(viewModel: MoodViewModel, navController: NavController) {
                 readOnly = true,
                 label = { Text("Sleep Hours") },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
-                colors = ExposedDropdownMenuDefaults.textFieldColors(),
+                colors = ExposedDropdownMenuDefaults.textFieldColors(unfocusedContainerColor = MaterialTheme.colorScheme.tertiary),
                 modifier = Modifier.menuAnchor()
             )
             ExposedDropdownMenu(
@@ -189,7 +192,6 @@ fun MoodTrackerScreen(viewModel: MoodViewModel, navController: NavController) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Notes Box (already had)
         BasicTextField(
             value = notes,
             onValueChange = { notes = it },

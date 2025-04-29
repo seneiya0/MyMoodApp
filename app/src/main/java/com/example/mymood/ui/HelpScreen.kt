@@ -9,8 +9,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 
 @Composable
 fun HelpScreen(navController: NavController) {
@@ -30,5 +32,12 @@ fun HelpScreen(navController: NavController) {
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onBackground
         )
+        //TODO: add more detail
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun HelpScreenPreview(){
+    HelpScreen(navController = rememberNavController())
 }
