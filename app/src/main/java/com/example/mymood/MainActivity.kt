@@ -1,11 +1,9 @@
 package com.example.mymood
 
 import android.os.Bundle
-import android.text.Layout
 import androidx.compose.ui.Alignment
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -25,11 +23,7 @@ import com.example.mymood.model.MoodEntry
 import com.example.mymood.ui.theme.MyMoodTheme
 import com.example.mymood.viewmodel.MoodViewModel
 import com.example.mymood.viewmodel.MoodViewModelFactory
-import kotlinx.coroutines.flow.collect
 import androidx.compose.foundation.lazy.items
-import androidx.compose.ui.text.style.LineHeightStyle
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -37,6 +31,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.room.Room
 import com.example.mymood.data.MoodDatabase
+import com.example.mymood.ui.DataDisplayScreen
 import com.example.mymood.ui.HelpScreen
 import com.example.mymood.ui.PreferencesScreen
 import java.text.SimpleDateFormat
@@ -67,7 +62,7 @@ class MainActivity : ComponentActivity() {
                     factory = MoodViewModelFactory(repository)
                 )
                 val preferencesViewModel: PreferencesViewModel = viewModel()
-                val snackbarHostState = remember { SnackbarHostState() }
+                val snackbarHostState = remember {SnackbarHostState()}
 
                 Scaffold(
                     bottomBar = { BottomNavigationBar(navController = navController) }
@@ -85,6 +80,9 @@ class MainActivity : ComponentActivity() {
                         }
                         composable(route = "help") {
                             HelpScreen(navController = navController)
+                        }
+                        composable(route = "summary") {
+                            DataDisplayScreen(navController = navController, viewModel = moodViewModel)
                         }
                     }
                 }
@@ -124,7 +122,7 @@ fun MoodTrackerScreen(viewModel: MoodViewModel, navController: NavController) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Row {
-            listOf("😊", "😐", "😢").forEach { mood ->
+            listOf("😊", "😐", "🙁", "❓").forEach { mood ->
                 Button(
                     onClick = { selectedMood = mood },
                     colors = ButtonDefaults.buttonColors(

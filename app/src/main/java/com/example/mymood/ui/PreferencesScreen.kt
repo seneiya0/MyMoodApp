@@ -1,13 +1,22 @@
 package com.example.mymood.ui
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.example.mymood.viewmodel.PreferencesViewModel
+import com.example.mymood.worker.WorkManagerScheduler
 import kotlinx.coroutines.launch
 
 
@@ -21,6 +30,15 @@ fun PreferencesScreen(
     val defaultMood by viewModel.defaultMood.collectAsState()
     val defaultSleep by viewModel.defaultSleep.collectAsState()
     val reminderTime by viewModel.reminderTime.collectAsState()
+
+    val context = LocalContext.current
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (!isGranted) {
+            Toast.makeText(context, "Notification permission denied", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     var moodInput by remember { mutableStateOf(defaultMood) }
     var sleepInput by remember { mutableStateOf(defaultSleep) }
@@ -161,6 +179,24 @@ fun PreferencesScreen(
                     viewModel.setDefaultMood(moodInput)
                     viewModel.setDefaultSleep(sleepInput)
                     viewModel.setReminderTime(timeInput)
+
+                    val parts = timeInput.split(":")
+                    val hour = parts[0].toIntOrNull() ?: 20
+                    val minute = parts.getOrNull(1)?.filter { it.isDigit() }?.toIntOrNull() ?: 0
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                            permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                            return@Button
+                        }
+                    }
+
+                    WorkManagerScheduler.scheduleReminderWorker(
+                        context = context,
+                        hour = hour,
+                        minute = minute
+                    )
+
                     scope.launch {
                         snackbarHostState.showSnackbar("Preferences saved!")
                     }

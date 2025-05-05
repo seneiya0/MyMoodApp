@@ -3,6 +3,7 @@ package com.example.mymood.ui.navigation
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -15,12 +16,14 @@ sealed class BottomNavItem(val route: String, val title: String, val icon: Image
     object MoodTracker : BottomNavItem("moodTracker", "Home", Icons.Default.Home)
     object Preferences : BottomNavItem("preferences", "Preferences", Icons.Default.Settings)
     object Help : BottomNavItem("help", "Help", Icons.Default.Info)
+    object Summary : BottomNavItem("summary", "Summary", Icons.Default.List)
 }
 
 @Composable
 fun BottomNavigationBar(navController: NavController) {
     val items = listOf(
         BottomNavItem.MoodTracker,
+        BottomNavItem.Summary,
         BottomNavItem.Preferences,
         BottomNavItem.Help
     )
