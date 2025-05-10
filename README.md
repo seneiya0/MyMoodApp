@@ -47,7 +47,7 @@ A simple, engaging Android app that helps users track their daily mood, sleep, a
 ## 📸Screenshots
 
 ### Home Screen
-![Home Screen](screenshots/home.png)
+<img src="screenshots/home.png" alt="Home Screen" width="300"/>
 
 ### Preferences Screen
 ![Preferences Screen](screenshots/preferences.png)
@@ -55,7 +55,7 @@ A simple, engaging Android app that helps users track their daily mood, sleep, a
 ### Mood Summary Screen (Recent Entries)
 ![Summary Screen 1](screenshots/summary1.png)
 
-### Mood Summary Screen (Statistics)
+### Mood Summary Screen (All Entries)
 ![Summary Screen 2](screenshots/summary2.png)
 
 ### Help Screen
