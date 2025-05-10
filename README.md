@@ -27,7 +27,7 @@ A simple, engaging Android app that helps users track their daily mood, sleep, a
 |---------------------|-------------|
 | **Main Activity**    | Mood logging screen (entry point of the app). |
 | **Preferences Activity** | Set default mood, sleep goal, and notification time. Preferences are stored persistently. |
-| **Secondary Activity ** | Displays mood history, averages, and most common mood. Data flows from Main Activity. |
+| **Secondary Activity** | Displays mood history, averages, and most common mood. Data flows from Main Activity. |
 | **Help Activity**    | Provides information about the app and how preferences affect behavior. Display only, no interaction required. |
 
 ---
