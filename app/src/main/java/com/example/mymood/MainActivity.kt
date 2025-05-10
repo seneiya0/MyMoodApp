@@ -96,7 +96,6 @@ class MainActivity : ComponentActivity() {
 fun MoodTrackerScreen(viewModel: MoodViewModel, navController: NavController) {
     var selectedMood by remember { mutableStateOf("😊") }
     var notes by remember { mutableStateOf(TextFieldValue("")) }
-    var showHistory by remember { mutableStateOf(false) }
     var expanded by remember { mutableStateOf(false) }
     val sleepOptions = listOf("1 hour","2 hours","3 hours","4 hours", "5 hours", "6 hours", "7 hours", "8 hours", "9 hours", "10 hours", "11 hours", "12 hours", "Over 12 Hours")
     var selectedSleep by remember { mutableStateOf(sleepOptions[2]) }
@@ -232,39 +231,6 @@ fun MoodTrackerScreen(viewModel: MoodViewModel, navController: NavController) {
             Text("Save Mood")
         }
 
-        Button(
-            onClick = { showHistory = true },
-            modifier = Modifier.fillMaxWidth().padding(20.dp)
-        ) {
-            Text("View Mood History")
-        }
-
-        if (showHistory) {
-            AlertDialog(
-                onDismissRequest = { showHistory = false },
-                confirmButton = {
-                    TextButton(onClick = { showHistory = false }) {
-                        Text("Close")
-                    }
-                },
-                title = {
-                    Text("Mood History")
-                },
-                text = {
-                    if (moodList.isEmpty()) {
-                        Text("No moods recorded yet.")
-                    } else {
-                        LazyColumn {
-                            items(moodList) { mood ->
-                                Divider(modifier = Modifier.padding(vertical = 4.dp))
-                                Text("${mood.mood} - ${mood.notes.orEmpty()} | ${formatTimestamp(mood.timestamp)}")
-                                Spacer(modifier = Modifier.height(4.dp))
-                            }
-                        }
-                    }
-                }
-            )
-        }
     }
 }
 
