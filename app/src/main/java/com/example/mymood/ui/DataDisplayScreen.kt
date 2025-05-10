@@ -26,11 +26,13 @@ import com.example.mymood.viewmodel.MoodViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import com.example.mymood.viewmodel.PreferencesViewModel
 
 @Composable
 fun DataDisplayScreen(
     navController: NavController,
-    viewModel: MoodViewModel
+    viewModel: MoodViewModel,
+    preferencesViewModel: PreferencesViewModel
 ) {
     val moodListState = viewModel.moodEntries.collectAsState(initial = emptyList())
     val moodList = moodListState.value
@@ -63,8 +65,11 @@ fun DataDisplayScreen(
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.secondary
             )
+            val sleepGoal by preferencesViewModel.defaultSleep.collectAsState()
+
+            val sleepGoalNumber = sleepGoal.filter { it.isDigit() }.toFloatOrNull()
             val avgSleepNum = averageSleep.toFloatOrNull()
-            if (avgSleepNum != null && avgSleepNum < 7) {
+            if (avgSleepNum != null && sleepGoalNumber != null && avgSleepNum < sleepGoalNumber) {
                 Spacer(modifier = Modifier.width(8.dp))
                 Icon(
                     imageVector = Icons.Default.Warning,

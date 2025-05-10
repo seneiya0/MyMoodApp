@@ -82,7 +82,7 @@ class MainActivity : ComponentActivity() {
                             HelpScreen(navController = navController)
                         }
                         composable(route = "summary") {
-                            DataDisplayScreen(navController = navController, viewModel = moodViewModel)
+                            DataDisplayScreen(navController = navController, viewModel = moodViewModel, preferencesViewModel = preferencesViewModel)
                         }
                     }
                 }

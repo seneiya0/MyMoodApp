@@ -110,7 +110,7 @@ fun PreferencesScreen(
                     value = sleepInput,
                     onValueChange = {},
                     readOnly = true,
-                    label = { Text("Default Sleep Goal") },
+                    label = { Text("Sleep Goal") },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(sleepDropdownExpanded) },
                     colors = ExposedDropdownMenuDefaults.textFieldColors(
                         unfocusedContainerColor = MaterialTheme.colorScheme.tertiary,
