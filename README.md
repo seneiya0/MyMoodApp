@@ -50,16 +50,17 @@ A simple, engaging Android app that helps users track their daily mood, sleep, a
 <img src="screenshots/home.png" alt="Home Screen" width="300"/>
 
 ### Preferences Screen
-![Preferences Screen](screenshots/preferences.png)
+<img src="screenshots/preferences.png" alt="Preferences Screen" width="300"/>
 
 ### Mood Summary Screen (Recent Entries)
-![Summary Screen 1](screenshots/summary1.png)
+<img src="screenshots/summary1.png" alt="Summary Screen 1" width="300"/>
 
 ### Mood Summary Screen (All Entries)
-![Summary Screen 2](screenshots/summary2.png)
+<img src="screenshots/summary2.png" alt="Summary Screen 2" width="300"/>
 
 ### Help Screen
-![Help Screen](screenshots/help.png)
+<img src="screenshots/help.png" alt="Help Screen" width="300"/>
+
 
 ---
 
