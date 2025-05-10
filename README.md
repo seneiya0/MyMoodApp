@@ -55,7 +55,7 @@ A simple, engaging Android app that helps users track their daily mood, sleep, a
 ### Mood Summary Screen (Recent Entries)
 ![Summary Screen 1](screenshots/summary1.png)
 
-### Mood Summary Screen (All Entries)
+### Mood Summary Screen (Statistics)
 ![Summary Screen 2](screenshots/summary2.png)
 
 ### Help Screen
