@@ -61,6 +61,8 @@ A simple, engaging Android app that helps users track their daily mood, sleep, a
 ### Help Screen
 <img src="screenshots/help.png" alt="Help Screen" width="300"/>
 
+### Notification
+<img src="screenshots/noti.png" alt="Help Screen" width="300"/>
 
 ---
 
